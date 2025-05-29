@@ -1,5 +1,6 @@
 package hr.fer.gymmanagment.membership.service;
 
+import hr.fer.gymmanagment.GymManagmentException;
 import hr.fer.gymmanagment.common.NotFoundException;
 import hr.fer.gymmanagment.membership.dto.MembershipDto;
 import hr.fer.gymmanagment.membership.entity.Membership;
@@ -32,6 +33,11 @@ public class MembershipService {
                 .orElseThrow(() -> new NotFoundException("Membership type not found with id: " + dto.typeId()));
         var userEntity = userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + user.getId()));
+
+        var activeMembership = membershipRepository.findFirstByUserAndEndDateAfter(userEntity, LocalDateTime.now());
+        if (activeMembership.isPresent()) {
+            throw new GymManagmentException("User already has an active membership.");
+        }
 
         Membership entity = membershipMapper.map(dto);
 

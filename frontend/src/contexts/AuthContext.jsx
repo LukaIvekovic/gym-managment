@@ -19,7 +19,8 @@ export const AuthProvider = ({children}) => {
             const userData =
                 {
                     accessToken: response.accessToken ?? "",
-                    email: email
+                    email: email,
+                    role: response?.user?.role ?? "KORISNIK"
                 };
 
             setUser(userData);
@@ -38,11 +39,12 @@ export const AuthProvider = ({children}) => {
         try {
             await register(userData);
 
-            var response = await login(userData.email, userData.password);
+            const response = await login(userData.email, userData.password);
 
             const user = {
                 accessToken: response.accessToken ?? "",
-                email: userData.email
+                email: userData.email,
+                role: response?.user?.role ?? "KORISNIK"
             };
             setUser(user);
             localStorage.setItem('user', JSON.stringify(user));

@@ -4,7 +4,7 @@ import hr.fer.gymmanagment.common.ApiErrorResponse;
 import hr.fer.gymmanagment.common.NotFoundException;
 import hr.fer.gymmanagment.groupclass.dto.GroupClassDto;
 import hr.fer.gymmanagment.groupclass.service.GroupClassService;
-import hr.fer.gymmanagment.security.entity.User;
+import hr.fer.gymmanagment.security.entity.pojo.DashboardUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -105,7 +105,7 @@ public class GroupClassController {
     })
     @Operation(summary = "Add participant to group class")
     public ResponseEntity<GroupClassDto> addParticipant(@PathVariable Integer id,
-                                                        @AuthenticationPrincipal User user) {
+                                                        @AuthenticationPrincipal DashboardUserDetails user) {
         log.info("Adding participant to group class with id: {}", id);
         return ResponseEntity.ok(groupClassService.addParticipant(id, user));
     }
@@ -118,7 +118,7 @@ public class GroupClassController {
     })
     @Operation(summary = "Remove participant from group class")
     public ResponseEntity<GroupClassDto> removeParticipant(@PathVariable Integer id,
-                                                           @AuthenticationPrincipal User user) {
+                                                           @AuthenticationPrincipal DashboardUserDetails user) {
         log.info("Removing participant from group class with id: {}", id);
         return ResponseEntity.ok(groupClassService.removeParticipant(id, user));
     }

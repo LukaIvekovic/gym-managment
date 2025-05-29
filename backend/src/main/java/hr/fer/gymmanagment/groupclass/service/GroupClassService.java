@@ -5,7 +5,8 @@ import hr.fer.gymmanagment.groupclass.dto.GroupClassDto;
 import hr.fer.gymmanagment.groupclass.entity.GroupClass;
 import hr.fer.gymmanagment.groupclass.mapper.GroupClassMapper;
 import hr.fer.gymmanagment.groupclass.repository.GroupClassRepository;
-import hr.fer.gymmanagment.security.entity.User;
+import hr.fer.gymmanagment.security.entity.pojo.DashboardUserDetails;
+import hr.fer.gymmanagment.security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class GroupClassService {
     private final GroupClassRepository groupClassRepository;
     private final GroupClassMapper groupClassMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     public GroupClassDto createGroupClass(GroupClassDto dto) {
@@ -28,7 +30,7 @@ public class GroupClassService {
 
     @Transactional(readOnly = true)
     public List<GroupClassDto> getAllGroupClasses() {
-        return groupClassRepository.findAll()
+        return groupClassRepository.findAllIncoming()
                 .stream()
                 .map(groupClassMapper::map)
                 .toList();
@@ -62,10 +64,17 @@ public class GroupClassService {
     }
 
     @Transactional
-    public GroupClassDto addParticipant(Integer classId, User participant) {
+    public GroupClassDto addParticipant(Integer classId, DashboardUserDetails participant) {
+        var participantEntity = userRepository.findById(participant.getId())
+                .orElseThrow(() -> new GymManagmentException("User not found with id: " + participant.getId()));
+
         GroupClass updatedClass = groupClassRepository.findById(classId)
                 .map(groupClass -> {
-                    groupClass.getParticipants().add(participant);
+                    if (groupClass.getParticipants().contains(participantEntity)) {
+                        throw new GymManagmentException("User already registered for this class");
+                    }
+
+                    groupClass.getParticipants().add(participantEntity);
                     return groupClassRepository.save(groupClass);
                 })
                 .orElseThrow(() -> new GymManagmentException("Group class not found with id: " + classId));
@@ -73,10 +82,13 @@ public class GroupClassService {
     }
 
     @Transactional
-    public GroupClassDto removeParticipant(Integer classId, User participant) {
+    public GroupClassDto removeParticipant(Integer classId, DashboardUserDetails participant) {
+        var participantEntity = userRepository.findById(participant.getId())
+                .orElseThrow(() -> new GymManagmentException("User not found with id: " + participant.getId()));
+
         GroupClass updatedClass = groupClassRepository.findById(classId)
                 .map(groupClass -> {
-                    groupClass.getParticipants().remove(participant);
+                    groupClass.getParticipants().remove(participantEntity);
                     return groupClassRepository.save(groupClass);
                 })
                 .orElseThrow(() -> new GymManagmentException("Group class not found with id: " + classId));

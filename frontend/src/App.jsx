@@ -7,6 +7,7 @@ import Login from "./components/authentication/Login.jsx";
 import PrivateRoute from "./components/authentication/PrivateRoute.jsx";
 import Home from "./components/Home.jsx";
 import UserMembership from "./components/membership/UserMembership.jsx";
+import GroupClasses from "./components/groupclass/GroupClasses.jsx";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
                           <Route path="/register" element={<Registration />} />
                           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
                           <Route path="/membership" element={<PrivateRoute><UserMembership /></PrivateRoute>} />
+                          <Route path="/group-classes" element={<PrivateRoute><GroupClasses /></PrivateRoute>} />
                           <Route path="/" element={<Login />} />
                       </Routes>
                   </div>
