@@ -8,6 +8,7 @@ import PrivateRoute from "./components/authentication/PrivateRoute.jsx";
 import Home from "./components/Home.jsx";
 import UserMembership from "./components/membership/UserMembership.jsx";
 import GroupClasses from "./components/groupclass/GroupClasses.jsx";
+import Chat from "./components/chat/Chat.jsx";
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
                           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
                           <Route path="/membership" element={<PrivateRoute><UserMembership /></PrivateRoute>} />
                           <Route path="/group-classes" element={<PrivateRoute><GroupClasses /></PrivateRoute>} />
+                          <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
                           <Route path="/" element={<Login />} />
                       </Routes>
                   </div>

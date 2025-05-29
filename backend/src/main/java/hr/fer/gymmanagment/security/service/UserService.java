@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -77,6 +78,16 @@ public class UserService {
         }
 
         log.info("Added all default users in the database");
+    }
+
+    public List<UserResponse> getUsersByRole(RoleEnum roleName) {
+        var role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new GymManagmentException("Role with name " + roleName + " does not exist!"));
+
+        return userRepository.findUsersByRole(role)
+                .stream()
+                .map(user -> new UserResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole().getName().name()))
+                .toList();
     }
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {

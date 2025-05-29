@@ -18,6 +18,7 @@ export const AuthProvider = ({children}) => {
             const response = await login(email, password);
             const userData =
                 {
+                    id: response?.user?.id ?? "",
                     accessToken: response.accessToken ?? "",
                     email: email,
                     role: response?.user?.role ?? "KORISNIK"
@@ -42,6 +43,7 @@ export const AuthProvider = ({children}) => {
             const response = await login(userData.email, userData.password);
 
             const user = {
+                id: response?.user?.id ?? "",
                 accessToken: response.accessToken ?? "",
                 email: userData.email,
                 role: response?.user?.role ?? "KORISNIK"

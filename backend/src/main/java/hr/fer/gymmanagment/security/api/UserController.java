@@ -5,8 +5,11 @@ import hr.fer.gymmanagment.security.entity.dto.request.LoginRequest;
 import hr.fer.gymmanagment.security.entity.dto.request.SignupRequest;
 import hr.fer.gymmanagment.security.entity.dto.response.JwtResponse;
 import hr.fer.gymmanagment.security.entity.dto.response.SignupResponse;
+import hr.fer.gymmanagment.security.entity.dto.response.UserResponse;
+import hr.fer.gymmanagment.security.entity.pojo.RoleEnum;
 import hr.fer.gymmanagment.security.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,10 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static hr.fer.gymmanagment.common.Constants.Api.*;
 
@@ -64,5 +66,25 @@ public class UserController {
             log.info("Added user with id {}", userId);
             return ResponseEntity.status(201).body(new SignupResponse(userId));
         }
+    }
+
+    @GetMapping("/trainers")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<List<UserResponse>> getTrainers() {
+        log.info("Fetching trainers");
+        return ResponseEntity.ok(userService.getUsersByRole(RoleEnum.TRENER));
+    }
+
+    @GetMapping("/gym-goers")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserResponse.class)))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<List<UserResponse>> getGymGoers() {
+        log.info("Fetching gym goers");
+        return ResponseEntity.ok(userService.getUsersByRole(RoleEnum.KORISNIK));
     }
 }

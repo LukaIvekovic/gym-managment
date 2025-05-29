@@ -30,3 +30,27 @@ export const register = async (userData) => {
         throw error;
     }
 };
+
+export const getTrainers = async () => {
+    try {
+        const response = await backendClient.get('/users/trainers');
+        return response.data;
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data?.message);
+        }
+        throw error;
+    }
+}
+
+export const getGymGoers = async () => {
+    try {
+        const response = await backendClient.get('/users/gym-goers');
+        return response.data;
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data?.message);
+        }
+        throw error;
+    }
+}
