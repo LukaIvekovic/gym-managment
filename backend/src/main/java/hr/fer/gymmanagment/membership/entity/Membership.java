@@ -25,4 +25,7 @@ public class Membership {
 
     @Column(name = "START_DATE", nullable = false)
     private LocalDateTime startDate;
+
+    @Column(name = "END_DATE", nullable = false)
+    private LocalDateTime endDate;
 }

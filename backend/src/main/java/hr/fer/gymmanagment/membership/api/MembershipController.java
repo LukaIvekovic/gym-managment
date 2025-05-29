@@ -4,7 +4,7 @@ import hr.fer.gymmanagment.common.ApiErrorResponse;
 import hr.fer.gymmanagment.common.NotFoundException;
 import hr.fer.gymmanagment.membership.dto.MembershipDto;
 import hr.fer.gymmanagment.membership.service.MembershipService;
-import hr.fer.gymmanagment.security.entity.User;
+import hr.fer.gymmanagment.security.entity.pojo.DashboardUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,7 +41,7 @@ public class MembershipController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @Operation(summary = "Create new membership")
-    public ResponseEntity<MembershipDto> createMembership(@AuthenticationPrincipal User user,
+    public ResponseEntity<MembershipDto> createMembership(@AuthenticationPrincipal DashboardUserDetails user,
                                                           @Valid @RequestBody MembershipDto membershipDto) {
         log.info("Creating new membership for user: {} with type: {}", user.getId(), membershipDto.typeId());
         MembershipDto created = membershipService.createMembership(user, membershipDto);
@@ -66,9 +66,21 @@ public class MembershipController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @Operation(summary = "Get all memberships for a user")
-    public ResponseEntity<List<MembershipDto>> getAllUserMemberships(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<MembershipDto>> getAllUserMemberships(@AuthenticationPrincipal DashboardUserDetails user) {
         log.info("Fetching all memberships for user: {}", user.getId());
         return ResponseEntity.ok(membershipService.getAllUserMemberships(user));
+    }
+
+    @GetMapping("/user/active")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MembershipDto.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @Operation(summary = "Get all memberships for a user")
+    public ResponseEntity<MembershipDto> getActiveUserMembership(@AuthenticationPrincipal DashboardUserDetails user) {
+        log.info("Fetching acrive memberships for user: {}", user.getId());
+        return ResponseEntity.ok(membershipService.getActiveUserMembership(user));
     }
 
     @GetMapping("/{id}")
@@ -95,7 +107,7 @@ public class MembershipController {
     @Operation(summary = "Update membership")
     public ResponseEntity<MembershipDto> updateMembership(@PathVariable Integer id,
                                                           @Valid @RequestBody MembershipDto membershipDto,
-                                                          @AuthenticationPrincipal User user) {
+                                                          @AuthenticationPrincipal DashboardUserDetails user) {
         log.info("Updating membership with id: {} for user: {} with type: {}", id, user.getId(), membershipDto.typeId());
         return ResponseEntity.ok(membershipService.updateMembership(id, user, membershipDto));
     }

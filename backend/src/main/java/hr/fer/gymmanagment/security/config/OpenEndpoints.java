@@ -12,12 +12,13 @@ public enum OpenEndpoints {
             "/swagger-resources/**",
             "/webjars/**",
             "/actuator/**",
-            "/h2-console"
+            "/h2-console/**"
     ),
 
     POST (
             V1 + USERS + REGISTRATION,
-            V1 + USERS + LOGIN
+            V1 + USERS + LOGIN,
+            "/h2-console/**"
     );
 
     private final String[] endpoints;

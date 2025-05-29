@@ -1,17 +1,31 @@
 import './App.css'
+import Registration from "./components/authentication/Registration.jsx";
+import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
+import {NotificationProvider} from "./contexts/NotificationContext.jsx";
+import {AuthProvider} from "./contexts/AuthContext.jsx";
+import Login from "./components/authentication/Login.jsx";
+import PrivateRoute from "./components/authentication/PrivateRoute.jsx";
+import Home from "./components/Home.jsx";
+import UserMembership from "./components/membership/UserMembership.jsx";
 
 function App() {
 
   return (
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Tailwind Card</h2>
-          <p className="text-gray-600 mt-3">
-              This is a simple card layout built with Tailwind CSS.
-          </p>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-              Learn More
-          </button>
-      </div>
+      <AuthProvider>
+          <NotificationProvider>
+              <Router>
+                  <div className="App">
+                      <Routes>
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Registration />} />
+                          <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+                          <Route path="/membership" element={<PrivateRoute><UserMembership /></PrivateRoute>} />
+                          <Route path="/" element={<Login />} />
+                      </Routes>
+                  </div>
+              </Router>
+          </NotificationProvider>
+      </AuthProvider>
   )
 }
 

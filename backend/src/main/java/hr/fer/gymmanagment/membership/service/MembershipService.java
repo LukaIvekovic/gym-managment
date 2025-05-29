@@ -6,11 +6,13 @@ import hr.fer.gymmanagment.membership.entity.Membership;
 import hr.fer.gymmanagment.membership.mapper.MembershipMapper;
 import hr.fer.gymmanagment.membership.repository.MembershipRepository;
 import hr.fer.gymmanagment.membership.repository.MembershipTypeRepository;
-import hr.fer.gymmanagment.security.entity.User;
+import hr.fer.gymmanagment.security.entity.pojo.DashboardUserDetails;
+import hr.fer.gymmanagment.security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +24,20 @@ public class MembershipService {
     private final MembershipRepository membershipRepository;
     private final MembershipMapper membershipMapper;
 
+    private final UserRepository userRepository;
+
     @Transactional
-    public MembershipDto createMembership(User user, MembershipDto dto) {
+    public MembershipDto createMembership(DashboardUserDetails user, MembershipDto dto) {
         var membershipType = membershipTypeRepository.findById(dto.typeId())
                 .orElseThrow(() -> new NotFoundException("Membership type not found with id: " + dto.typeId()));
+        var userEntity = userRepository.findById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + user.getId()));
 
         Membership entity = membershipMapper.map(dto);
 
-        entity.setUser(user);
+        entity.setUser(userEntity);
         entity.setMembershipType(membershipType);
+        entity.setEndDate(dto.startDate().plusDays(membershipType.getDuration()));
 
         Membership savedEntity = membershipRepository.save(entity);
         return membershipMapper.map(savedEntity);
@@ -45,11 +52,24 @@ public class MembershipService {
     }
 
     @Transactional(readOnly = true)
-    public List<MembershipDto> getAllUserMemberships(User user) {
+    public List<MembershipDto> getAllUserMemberships(DashboardUserDetails userDetails) {
+        var user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userDetails.getId()));
+
         return membershipRepository.findByUser(user)
                 .stream()
                 .map(membershipMapper::map)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public MembershipDto getActiveUserMembership(DashboardUserDetails userDetails) {
+        var user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userDetails.getId()));
+
+        return membershipRepository.findFirstByUserAndEndDateAfter(user, LocalDateTime.now())
+                .map(membershipMapper::map)
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +79,10 @@ public class MembershipService {
     }
 
     @Transactional
-    public MembershipDto updateMembership(Integer id, User user, MembershipDto dto) {
+    public MembershipDto updateMembership(Integer id, DashboardUserDetails userDetails, MembershipDto dto) {
+        var user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userDetails.getId()));
+
         return membershipRepository.findById(id)
                 .map(existingMembership -> {
                     var membershipType = membershipTypeRepository.findById(dto.typeId())
