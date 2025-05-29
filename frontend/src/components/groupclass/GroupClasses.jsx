@@ -8,6 +8,7 @@ import {
 import { useNotification } from '../../contexts/NotificationContext';
 import Navbar from '../NavBar';
 import {useAuth} from "../../contexts/AuthContext.jsx";
+import GroupClassCard from "./GroupClassCard.jsx";
 
 const GroupClasses = () => {
     const [groupClasses, setGroupClasses] = useState([]);
@@ -202,38 +203,7 @@ const GroupClasses = () => {
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {groupClasses.map((groupClass) => (
-                            <div key={groupClass.id} className="bg-white overflow-hidden shadow rounded-lg">
-                                <div className="p-6">
-                                    <h3 className="text-lg font-medium text-gray-900">{groupClass.name}</h3>
-                                    <p className="mt-1 text-gray-500">{groupClass.description}</p>
-                                    <div className="mt-4">
-                                        <p className="text-sm text-gray-500">
-                                            Tip: {groupClass.type}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Datum: {new Date(groupClass.dateTime).toLocaleString()}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Trajanje: {groupClass.duration} minuta
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Polaznika: {groupClass.currentParticipants}/{groupClass.maxParticipants}
-                                        </p>
-                                    </div>
-                                    <div className="mt-6">
-                                        <button
-                                            onClick={() => handleRegistration(groupClass.id, false)}
-                                            disabled={groupClass.currentParticipants >= groupClass.maxParticipants}
-                                            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                                                ${groupClass.currentParticipants >= groupClass.maxParticipants 
-                                                ? 'bg-gray-400 cursor-not-allowed' 
-                                                : 'bg-blue-600 hover:bg-blue-700'}`}
-                                        >
-                                            Prijavi se
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <GroupClassCard key={groupClass.id} groupClass={groupClass} handleRegistration={handleRegistration} />
                         ))}
                     </div>
                 </div>

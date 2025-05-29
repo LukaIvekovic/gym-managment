@@ -7,7 +7,9 @@ import hr.fer.gymmanagment.groupclass.mapper.GroupClassMapper;
 import hr.fer.gymmanagment.groupclass.repository.GroupClassRepository;
 import hr.fer.gymmanagment.security.entity.pojo.DashboardUserDetails;
 import hr.fer.gymmanagment.security.repository.UserRepository;
+import hr.fer.gymmanagment.websocket.ParticipantCountDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class GroupClassService {
     private final GroupClassRepository groupClassRepository;
     private final GroupClassMapper groupClassMapper;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public GroupClassDto createGroupClass(GroupClassDto dto) {
@@ -78,7 +81,10 @@ public class GroupClassService {
                     return groupClassRepository.save(groupClass);
                 })
                 .orElseThrow(() -> new GymManagmentException("Group class not found with id: " + classId));
-        return groupClassMapper.map(updatedClass);
+
+        GroupClassDto result = groupClassMapper.map(updatedClass);
+        broadcastParticipantCount(updatedClass);
+        return result;
     }
 
     @Transactional
@@ -92,7 +98,21 @@ public class GroupClassService {
                     return groupClassRepository.save(groupClass);
                 })
                 .orElseThrow(() -> new GymManagmentException("Group class not found with id: " + classId));
-        return groupClassMapper.map(updatedClass);
+
+        var result = groupClassMapper.map(updatedClass);
+        broadcastParticipantCount(updatedClass);
+        return result;
+    }
+
+    private void broadcastParticipantCount(GroupClass groupClass) {
+        ParticipantCountDto countDto = new ParticipantCountDto(
+                groupClass.getId(),
+                groupClass.getParticipants().size()
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/group-class/" + groupClass.getId() + "/participants",
+                countDto
+        );
     }
 }
 

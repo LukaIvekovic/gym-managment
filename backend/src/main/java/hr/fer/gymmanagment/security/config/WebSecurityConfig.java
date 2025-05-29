@@ -58,9 +58,10 @@ public class WebSecurityConfig {
                 .cors((cors) -> {
                     cors.configurationSource((request) -> {
                         var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                        corsConfiguration.setAllowedOrigins(java.util.List.of("*"));
+                        corsConfiguration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
                         corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
                         corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                        corsConfiguration.setAllowCredentials(true);
                         return corsConfiguration;
                     });
                 })
@@ -68,9 +69,11 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, OpenEndpoints.GET.getEndpoints()).permitAll()
-                                .requestMatchers(HttpMethod.POST, OpenEndpoints.POST.getEndpoints()).permitAll()
-                                .anyRequest().authenticated()
+                                .requestMatchers("/v1/api/users/login").permitAll()
+                                .requestMatchers("/v1/api/users/registration").permitAll()
+                                .requestMatchers("/v1/api/**").authenticated()
+                                .requestMatchers("/ws/**").permitAll()
+                                .anyRequest().permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
